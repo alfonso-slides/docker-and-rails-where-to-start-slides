@@ -55,6 +55,78 @@
 				<section>
 					<img src="img/running_rails_without_installing_rails.jpg" style="max-height: 60vh">
 				</section>
+				<section>
+					<pre><code class="bash" data-trim data-noescape>
+						> docker image pull ruby:2.6
+						2.6: Pulling from library/ruby
+						90fe46dd8199: Downloading [=======================>                           ]  24.09MB/50.38MB
+						35a4f1977689: Download complete
+						bbc37f14aded: Download complete
+						74e27dc593d4: Downloading [===========>                                       ]  12.11MB/51.83MB
+						4352dcff7819: Downloading [==========>                                        ]  38.61MB/192.2MB
+						cffd0bce6043: Waiting
+						342084bc3791: Waiting
+						00830f8007ce: Waiting
+						...
+						...
+						Digest: sha256:a16808c92f50c6be34be65da57f22b58bc5e7fbea4707b9cfe2516898b0f3922
+						Status: Downloaded newer image for ruby:2.6
+						docker.io/library/ruby:2.6
+						>_
+					</code></pre>	
+				</section>
+				<section>
+					<h4>Enter the chroot jail...</h4>
+					<pre><code class="bash" data-trim data-noescape>
+						> docker container run -ti --rm ruby:2.6 bash
+						root@41a8326ef001:/>
+					</code></pre>	
+				</section>
+				<section>
+					<h4>Filesystem isolation + process isolation</h4>
+					<pre><code class="bash" data-trim data-noescape>
+						root@41a8326ef001:/> ps uxa
+						USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+						root         1  0.0  0.1   3864  3256 pts/0    Ss   15:53   0:00 bash
+						root         8  0.0  0.1   7636  2660 pts/0    R+   15:56   0:00 ps uxa
+						root@41a8326ef001:/>_
+					</code></pre>	
+				</section>
+				<section>
+					<h4>Install rails inside our chroot jail...<h4>
+					<pre><code class="bash" data-trim data-noescape>
+						root@41a8326ef001:/> gem install rails
+						...
+						root@41a8326ef001:/> rails --version
+						Rails 6.0.2.2
+						root@41a8326ef001:/>_
+					</code></pre>	
+				</section>
+				<section>
+					<h4>Exit our chroot jail...<h4>
+					<pre><code class="bash" data-trim data-noescape>
+						root@41a8326ef001:/> exit
+						>_
+					</code></pre>	
+				</section>
+				<section>
+					<h4>Enter our chroot jail for the second time...<h4>
+					<pre><code class="bash" data-trim data-noescape>
+						> docker run --rm -ti ruby:2.6 bash
+						root@41a8326ef001:/> rails
+						bash: rails: command not found
+						root@41a8326ef001:/> _
+					</code></pre>	
+				</section>
+				<section>
+					<img src="img/wtf.jpg">
+				</section>
+				<section>
+					<img src="img/containers_are_ephemeral.jpg">
+				</section>
+				<section>
+					<img src="img/persistence.jpg">
+				</section>
 			</div>
 		</div>
 
