@@ -93,7 +93,7 @@
 					</code></pre>	
 				</section>
 				<section>
-					<h4>Install rails inside our chroot jail...<h4>
+					<h4>Install rails inside our chroot jail...</h4>
 					<pre><code class="bash" data-trim data-noescape>
 						root@41a8326ef001:/> gem install rails
 						...
@@ -103,14 +103,14 @@
 					</code></pre>	
 				</section>
 				<section>
-					<h4>Exit our chroot jail...<h4>
+					<h4>Exit our chroot jail...</h4>
 					<pre><code class="bash" data-trim data-noescape>
 						root@41a8326ef001:/> exit
 						>_
 					</code></pre>	
 				</section>
 				<section>
-					<h4>Enter our chroot jail for the second time...<h4>
+					<h4>Enter our chroot jail for the second time...</h4>
 					<pre><code class="bash" data-trim data-noescape>
 						> docker run --rm -ti ruby:2.6 bash
 						root@41a8326ef001:/> rails
@@ -126,6 +126,122 @@
 				</section>
 				<section>
 					<img src="img/persistence.jpg">
+				</section>
+				<section>
+					<img src="img/build_custom_image.jpg" style="max-height: 60vh">
+				</section>
+				<section>
+					<h4>Create a docker image with rails inside</h4>
+					<h5>1: create a Dockerfile</h5>
+					<pre><code class="Dockerfile" data-trim data-noescape>
+						# Dockerfile
+						FROM ruby:2.6
+						RUN gem install rails
+					</code></pre>	
+				</section>
+				<section>
+					<h5>2: Build the new image</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker build -f Dockerfile -t rails:6.0 .
+						Sending build context to Docker daemon  2.048kB
+						Step 1/2 : FROM ruby:2.6
+						 ---> 5d2ee2444c80
+						Step 2/2 : RUN gem install rails
+						 ---> Running in be541c362bc8
+						Successfully installed concurrent-ruby-1.1.6
+
+						HEADS UP! i18n 1.1 changed fallbacks to exclude default locale.
+						But that may break your application.
+
+						If you are upgrading your Rails application from an older version of Rails:
+
+						Please check your Rails app for 'config.i18n.fallbacks = true'.
+						If you're using I18n (>= 1.1.0) and Rails (< 5.2.2), this should be
+						'config.i18n.fallbacks = [I18n.default_locale]'.
+						If not, fallbacks will be broken in your app by I18n 1.1.x.
+
+						If you are starting a NEW Rails application, you can ignore this notice.
+
+						For more info see:
+						https://github.com/svenfuchs/i18n/releases/tag/v1.1.0
+
+						Successfully installed i18n-1.8.2
+						Successfully installed thread_safe-0.3.6
+						Successfully installed tzinfo-1.2.7
+						...
+						...
+						40 gems installed
+						Removing intermediate container be541c362bc8
+						 ---> 8cb455dd004c
+						Successfully built 8cb455dd004c
+						Successfully tagged rails:6
+					</code></pre>	
+
+				</section>
+				<section>
+					<h5>3: Run rails inside a container using our new docker image</h5>
+					<pre><code class="bash" data-trim data-noescape>
+						> docker run --rm -ti rails:6 bash
+						root@44493fd551b5:/> rails --version
+						Rails 6.0.2.2	
+					</code></pre>	
+				</section>
+				<section>
+					<img src="img/persistence.jpg">
+				</section>
+				<section>
+					<h4>Run rails app inside a container</h4>
+					<h5>1: Run bash inside the rails container...</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						docker run --rm -ti \ 
+						-v $(pwd):/bind_volume \
+						-v bundle_cache:/usr/local/bundle \
+						-v node_modules_cache:/bind_volume/simple_app/node_modules \
+						-p "3000:3000" 
+						rails:6 bash
+
+						root@44493fd551b5:/> 
+					</code></pre>	
+					<h5>...with all the volumes we need attached to it</h5>
+				</section>
+				<section>
+					<h5>2: Create the rails app</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						root@44493fd551b5:/> cd /bind_volume
+						root@44493fd551b5:/> rails new simple_app
+						... (all the output of the rails new command goes here) 
+					</code></pre>	
+				</section>
+				<section>
+					<h5>3: Launch the rails app</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						root@44493fd551b5:/> rails s -b 0.0.0.0
+					</code></pre>	
+					<p>I should see it using my browser...</p>
+				</section>
+				<section>
+					<h5>4: Exit the container</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						root@44493fd551b5:/> exit
+						>_
+					</code></pre>	
+					<p>I should not be able to access the rails app from my browser.</p>
+				</section>
+				<section>
+					<h5>5: Launch the rails app again</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						docker run --rm -ti \ 
+						-v $(pwd):/bind_volume \
+						-v bundle_cache:/usr/local/bundle \
+						-v node_modules_cache:/bind_volume/simple_app/node_modules \
+						-p "3000:3000" 
+						-w /bind_volume
+						rails:6 rails s -b 0.0.0.0
+					</code></pre>	
+					<p>Thanks to the volumes I've used, <b>everything I needed to be persisted, was persisted</b></p>
+				</section>
+				<section>
+					<img src="img/checklist.jpg" style="max-height: 60vh">
 				</section>
 			</div>
 		</div>
