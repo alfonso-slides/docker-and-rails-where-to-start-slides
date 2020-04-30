@@ -29,6 +29,15 @@
 					<img src="img/slide1.jpg">
 				</section>
 				<section>
+					<img src="img/about_me.jpg">
+				</section>
+				<section>
+					<img src="img/lets_google.jpg">
+				</section>
+				<section>
+					<img src="img/how_to_build_a_house.jpg">
+				</section>
+				<section>
 					<img src="img/slide2.jpg">
 				</section>
 				<section>
@@ -187,7 +196,7 @@
 					</code></pre>	
 				</section>
 				<section>
-					<img src="img/persistence.jpg">
+					<img src="img/volumes.jpg" style="max-height: 60vh">
 				</section>
 				<section>
 					<h4>Run rails app inside a container</h4>
@@ -197,7 +206,7 @@
 						-v $(pwd):/bind_volume \
 						-v bundle_cache:/usr/local/bundle \
 						-v node_modules_cache:/bind_volume/simple_app/node_modules \
-						-p "3000:3000" 
+						-p "3000:3000" \
 						rails:6 bash
 
 						root@44493fd551b5:/> 
@@ -234,7 +243,7 @@
 						-v $(pwd):/bind_volume \
 						-v bundle_cache:/usr/local/bundle \
 						-v node_modules_cache:/bind_volume/simple_app/node_modules \
-						-p "3000:3000" 
+						-p "3000:3000" \ 
 						-w /bind_volume
 						rails:6 rails s -b 0.0.0.0
 					</code></pre>	
@@ -242,6 +251,100 @@
 				</section>
 				<section>
 					<img src="img/checklist.jpg" style="max-height: 60vh">
+				</section>
+				<section>
+					<img src="img/docker_compose.jpg">
+				</section>
+				<section>
+					<h4>Start a multi container application</h4>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> git clone https://github.com/alfonso-slides/docker-and-rails-where-to-start-multicontainer-app.git multicontainer_app
+						> cd multicontainer_app
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Let's have a look at the docker compose file</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						version: '3'
+						services:
+
+						  db:
+						    image: postgres:12
+						    volumes:
+						      - db_data:/var/lib/postgresql/data
+						    environment:
+						      - POSTGRES_PASSWORD=postgres
+						      - POSTGRES_DB=development
+						  web:
+						    build:
+						      context: .
+						      dockerfile: Dockerfile
+						    ports:
+						      - '3000:3000'
+						    working_dir: '/app'
+						    command: ["rails", "s", "-b", "0.0.0.0"]
+						    volumes:
+						      - .:/app  
+						      - gems_cache:/usr/local/bundle
+						      - node_modules_cache:/app/node_modules
+						    depends_on:
+						      - db    
+
+						volumes:
+						  db_data:
+						  gems_cache:
+						  node_modules_cache:
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Warm up the cache</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker-compose run --rm web bundle install
+						> docker-compose run --rm web rails yarn:insall
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Create the database</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker-compose run --rm web rails db:create
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Load the schema</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker-compose run --rm web rails db:schema:load
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Seed the database</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker-compose run --rm web rails db:seed
+					</code></pre>	
+				</section>
+				<section>
+					<h5>Start the application</h5>
+					<pre><code class="plaintext" data-trim data-noescape>
+						> docker-compose up
+					</code></pre>	
+				</section>
+				<section>
+					<img src="img/all_the_pieces.jpg">
+				</section>
+				<section>
+					<h4>Resources</h4>
+					<h5>Some resources that helped me</h5>
+					<ul>
+						<li><a href="https://learndocker.online">Learn Docker (online)</a></li>
+						<li><a href="https://evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development">Ruby on whales (Post by Evil Martians)</a></li>
+						<li><a href="https://pragprog.com/book/ridocker/docker-for-rails-developers">Docker for Rails Developers</a></li>
+						<li><a href="https://www.udemy.com/course/scaling-docker-on-aws/">Scaling Docker on AWS</a></li>
+						<li><a href="https://github.com/alfonso-slides/docker-and-rails-where-to-start-slides">Slides repository</a></li>
+						<li><a href="https://github.com/alfonso-slides/docker-and-rails-where-to-start-support">Vagrant file</a></li>
+						<li><a href="https://github.com/alfonso-slides/docker-and-rails-where-to-start-multicontainer-app">Multi-container application</a></li>
+					</ul>
+				</section>
+				<section>
+					<img src="img/thank_you.jpg" style="max-height: 60vh">
 				</section>
 			</div>
 		</div>
